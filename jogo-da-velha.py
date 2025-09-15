@@ -1,34 +1,80 @@
-import time
+# Função para mostrar o tabuleiro
+def exibir_tabuleiro(tabuleiro):
+    for linha in tabuleiro:
+        print(" | ".join(linha))
+        print("-" * 5)
 
-# Definindo a senha fixa
-SENHA_CORRETA = "1234"
+# Função para verificar se houve vitória
+def verificar_vitoria(tabuleiro, jogador):
+    # Verificar linhas e colunas
+    for i in range(3):
+        if all([tabuleiro[i][j] == jogador for j in range(3)]) or all([tabuleiro[j][i] == jogador for j in range(3)]):
+            return True
+    # Verificar diagonais
+    if tabuleiro[0][0] == jogador and tabuleiro[1][1] == jogador and tabuleiro[2][2] == jogador:
+        return True
+    if tabuleiro[0][2] == jogador and tabuleiro[1][1] == jogador and tabuleiro[2][0] == jogador:
+        return True
+    return False
 
-# Função de login
-def realizar_login():
-    tentativas = 3  # Número máximo de tentativas
-    tempo_limite = 30  # Tempo limite em segundos
-    tempo_inicio = time.time()  # Marca o início do tempo
+# Função para verificar se o jogo terminou em empate
+def verificar_empate(tabuleiro):
+    for linha in tabuleiro:
+        if " " in linha:  # Se houver alguma posição vazia, o jogo ainda não terminou
+            return False
+    return True
+
+# Função para validar a jogada
+def validar_jogada(tabuleiro, linha, coluna):
+    if linha < 0 or linha > 2 or coluna < 0 or coluna > 2:  # Checar se a posição está dentro do tabuleiro
+        print("Posição inválida! Tente novamente.")
+        return False
+    if tabuleiro[linha][coluna] != " ":  # Checar se a posição já está ocupada
+        print("Essa posição já está ocupada! Tente novamente.")
+        return False
+    return True
+
+# Função principal para jogar
+def jogar():
+    # Criando o tabuleiro (3x3)
+    tabuleiro = [[" " for _ in range(3)] for _ in range(3)]
     
-    while tentativas > 0:
-        # Verifica o tempo decorrido
-        tempo_decorrido = time.time() - tempo_inicio
-        if tempo_decorrido > tempo_limite:
-            print("Tempo expirado! Você excedeu o limite de 30 segundos.")
-            break
+    # Jogadores: X e O
+    jogadores = ["X", "O"]
+    turno = 0
+    
+    # Iniciar o jogo
+    while True:
+        exibir_tabuleiro(tabuleiro)
+        jogador_atual = jogadores[turno % 2]
+        print(f"É a vez do jogador {jogador_atual}.")
         
-        # Solicita a senha do usuário
-        senha_usuario = input(f"Tentativa {4 - tentativas} de 3: Digite a senha: ")
+        # Pedir a jogada do jogador
+        try:
+            linha = int(input("Digite a linha (0, 1, 2): "))
+            coluna = int(input("Digite a coluna (0, 1, 2): "))
+        except ValueError:
+            print("Entrada inválida. Tente novamente.")
+            continue
         
-        if senha_usuario == SENHA_CORRETA:
-            print("Acesso concedido!")
-            break
-        else:
-            tentativas -= 1
-            if tentativas > 0:
-                print(f"Senha incorreta. Você ainda tem {tentativas} tentativa(s).")
-            else:
-                print("Número de tentativas excedido! Acesso negado.")
+        if validar_jogada(tabuleiro, linha, coluna):
+            tabuleiro[linha][coluna] = jogador_atual
+            
+            # Verificar se alguém venceu
+            if verificar_vitoria(tabuleiro, jogador_atual):
+                exibir_tabuleiro(tabuleiro)
+                print(f"Parabéns! O jogador {jogador_atual} venceu!")
+                break
+            
+            # Verificar se houve empate
+            if verificar_empate(tabuleiro):
+                exibir_tabuleiro(tabuleiro)
+                print("O jogo terminou em empate!")
+                break
+            
+            # Alternar o turno
+            turno += 1
 
-# Executando o sistema de login
+# Iniciar o jogo
 if __name__ == "__main__":
-    realizar_login()
+    jogar()
